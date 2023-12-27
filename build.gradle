@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'com.rankinteractive'
+            artifactId = 'customer-visit-client'
+
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            if(project.version.endsWith('-SNAPSHOT')) {
+                url "https://nexus-primetime.sbmdev.net/repository/maven-snapshots"
+            } else {
+                url "https://nexus-primetime.sbmdev.net/repository/maven-releases"
+            }
+            credentials {
+                username "$nexusUser"
+                password "$nexusPassword"
+            }
+        }
+    }
+}
